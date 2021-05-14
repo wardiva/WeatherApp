@@ -11,11 +11,11 @@ public class WeatherData<Getter> {
     public static WeatherData fromJson(JSONObject jsonObject){
         try {
             WeatherData WeatherD= new WeatherData();
-            WeatherD.mCity= jsonObject.getString("name");
-            WeatherD.mCondition=jsonObject.getJSONArray("weather").getJSONObject(0).getInt("id");
-            WeatherD.mWeatherType=jsonObject.getJSONArray("weather").getJSONObject(0).getString("main");
+            WeatherD.mCity= jsonObject.getString("timezone");
+            WeatherD.mCondition=jsonObject.getJSONObject("current").getJSONArray("weather").getJSONObject(0).getInt("id");
+            WeatherD.mWeatherType=jsonObject.getJSONObject("current").getJSONArray("weather").getJSONObject(0).getString("main");
             WeatherD.mIcon=UpdateWeatherIcon(WeatherD.mCondition);
-            double tempResult=jsonObject.getJSONObject("main").getDouble("temp")-273.15;
+            double tempResult=jsonObject.getJSONObject("current").getDouble("temp")-273.15;
             int roundedValue=(int)Math.rint(tempResult);
             WeatherD.mTemperature= Integer.toString(roundedValue);
             return WeatherD;

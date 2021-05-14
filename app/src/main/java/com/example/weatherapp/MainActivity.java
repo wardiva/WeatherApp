@@ -8,6 +8,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -29,14 +30,15 @@ import cz.msebera.android.httpclient.Header;
 public class MainActivity extends AppCompatActivity {
 
     final String API = "186da39a27742066ab0949fa2fa0b746";
-    final String WEATHER_URL = "https://api.openweathermap.org/data/2.5/weather";
+    final String WEATHER_URL = "https://api.openweathermap.org/data/2.5/onecall";
 
+    private static String TAG = "MainActivity";
     final long MIN_TIME = 5000;
     final float MIN_DISTANCE = 1000;
     final int REQUEST_CODE = 101;
 
 
-    String Location_Provider = LocationManager.GPS_PROVIDER;
+    String Location_Provider = LocationManager.NETWORK_PROVIDER;
 
     TextView NameofCity, WeatherState, Temperature;
     ImageView mWeatherIcon;
@@ -91,11 +93,12 @@ public class MainActivity extends AppCompatActivity {
     private void getWeatherForNewCity(String city){
         RequestParams params = new RequestParams();
         params.put("q",city);
-        params.put("api", API);
+        params.put("appid", API);
         LetsDoSomeNetworking(params);
     }
 
     private void getWeatherForCurrentLocation() {
+        Log.d(TAG, "getWeatherForCurrentLocation: ");
         mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         mLocationListener = new LocationListener() {
             @Override
@@ -104,10 +107,12 @@ public class MainActivity extends AppCompatActivity {
                 String Latitude = String.valueOf(location.getLatitude());
                 String Longitude = String.valueOf(location.getLongitude());
 
+                Log.d("onLocationChanged", Latitude+" : " + Longitude);
+
                 RequestParams params = new RequestParams();
                 params.put("lat", Latitude);
-                params.put("long", Longitude);
-                params.put("api", API);
+                params.put("lon", Longitude);
+                params.put("appid", API);
                 LetsDoSomeNetworking(params);
             }
 
@@ -140,6 +145,20 @@ public class MainActivity extends AppCompatActivity {
         }
         mLocationManager.requestLocationUpdates(Location_Provider, MIN_TIME, MIN_DISTANCE, mLocationListener);
 
+        if (mLocationManager != null) {
+            Location location = mLocationManager.getLastKnownLocation(Location_Provider);
+            if (location != null) {
+                String Latitude = String.valueOf(location.getLatitude());
+                String Longitude = String.valueOf(location.getLongitude());
+
+                RequestParams params = new RequestParams();
+                params.put("lat", Latitude);
+                params.put("lon", Longitude);
+                params.put("appid", API);
+                LetsDoSomeNetworking(params);
+            }
+        }
+
     }
 
     @Override
@@ -154,7 +173,7 @@ public class MainActivity extends AppCompatActivity {
             }
             else
             {
-                //user denied the permission
+                Log.d(TAG, "onRequestPermissionsResult: Location access denied");
             }
         }
 
@@ -166,16 +185,18 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 Toast.makeText(MainActivity.this, "Data Get Successfully", Toast.LENGTH_SHORT).show();
-
+                Log.d(TAG, "onSuccess: "+ response);
                 WeatherData WeatherD= WeatherData.fromJson(response);
                 UpdateUI(WeatherD);
 
-                //super.onSuccess(statusCode, headers, response);
+                super.onSuccess(statusCode, headers, response);
             }
 
             @Override
-            public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
-                //super.onFailure(statusCode, headers, responseString, throwable);
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                super.onFailure(statusCode, headers, throwable, errorResponse);
+                Log.d(TAG, "onFailure: "+ errorResponse);
+
             }
         });
     }
