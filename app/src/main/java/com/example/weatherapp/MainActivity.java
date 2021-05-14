@@ -30,7 +30,7 @@ import cz.msebera.android.httpclient.Header;
 public class MainActivity extends AppCompatActivity {
 
     final String API = "186da39a27742066ab0949fa2fa0b746";
-    final String WEATHER_URL = "https://api.openweathermap.org/data/2.5/weather";
+    final String WEATHER_URL = "https://api.openweathermap.org/data/2.5/onecall";
 
     private static String TAG = "MainActivity";
     final long MIN_TIME = 5000;
@@ -93,7 +93,7 @@ public class MainActivity extends AppCompatActivity {
     private void getWeatherForNewCity(String city){
         RequestParams params = new RequestParams();
         params.put("q",city);
-        params.put("api", API);
+        params.put("appid", API);
         LetsDoSomeNetworking(params);
     }
 
@@ -111,8 +111,8 @@ public class MainActivity extends AppCompatActivity {
 
                 RequestParams params = new RequestParams();
                 params.put("lat", Latitude);
-                params.put("long", Longitude);
-                params.put("api", API);
+                params.put("lon", Longitude);
+                params.put("appid", API);
                 LetsDoSomeNetworking(params);
             }
 
@@ -153,8 +153,8 @@ public class MainActivity extends AppCompatActivity {
 
                 RequestParams params = new RequestParams();
                 params.put("lat", Latitude);
-                params.put("long", Longitude);
-                params.put("api", API);
+                params.put("lon", Longitude);
+                params.put("appid", API);
                 LetsDoSomeNetworking(params);
             }
         }
@@ -185,7 +185,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 Toast.makeText(MainActivity.this, "Data Get Successfully", Toast.LENGTH_SHORT).show();
-
+                Log.d(TAG, "onSuccess: "+ response);
                 WeatherData WeatherD= WeatherData.fromJson(response);
                 UpdateUI(WeatherD);
 
